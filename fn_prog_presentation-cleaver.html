@@ -1,0 +1,760 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <title>An introduction to functional programming</title>
+  <style type="text/css">
+    body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #222;
+  background-color: #f7f7f7;
+  font-size: 100%;
+}
+
+.slide {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 0; right: 0;
+}
+
+.slide-content {
+  width: 800px;
+  height: 600px;
+  overflow: hidden;
+  margin: 80px auto 0 auto;
+  padding: 30px;
+
+  font-weight: 200;
+  font-size: 200%;
+  line-height: 1.375;
+}
+
+.controls {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+}
+
+.arrow {
+  width: 0; height: 0;
+  border: 30px solid #333;
+  float: left;
+  margin-right: 30px;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.prev {
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+
+  border-left-width: 0;
+  border-right-width: 50px;
+}
+
+.next {
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-right-color: transparent;
+
+  border-left-width: 50px;
+  border-right-width: 0;
+}
+
+.prev:hover {
+  border-right-color: #888;
+  cursor: pointer;
+}
+
+.next:hover {
+  border-left-color: #888;
+  cursor: pointer;
+}
+
+h1 {
+  font-size: 300%;
+  line-height: 1.2;
+  text-align: center;
+  margin: 170px 0 0;
+}
+
+h2 {
+  font-size: 100%;
+  line-height: 1.2;
+  margin: 5px 0;
+  text-align: center;
+  font-weight: 200;
+}
+
+h3 {
+  font-size: 140%;
+  line-height: 1.2;
+  border-bottom: 1px solid #aaa;
+  margin: 0;
+  padding-bottom: 15px;
+}
+
+ul {
+  padding: 20px 0 0 60px;
+  font-weight: 200;
+  line-height: 1.375;
+}
+
+.author h1 {
+  font-size: 170%;
+  font-weight: 200;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.author h3 {
+  font-weight: 100;
+  text-align: center;
+  font-size: 95%;
+  border: none;
+}
+
+a {
+  text-decoration: none;
+  color: #44a4dd;
+}
+
+a:hover {
+  color: #66b5ff;
+}
+
+pre {
+  font-size: 60%;
+  line-height: 1.3;
+}
+
+.progress {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.progress-bar {
+  width: 0%;
+  height: 3px;
+  background-color: #b4b4b4;
+
+  -webkit-transition: width 0.05s ease-out;
+  -moz-transition: width 0.05s ease-out;
+  -o-transition: width 0.05s ease-out;
+  transition: width 0.05s ease-out;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 850px) {
+
+  body {
+    font-size: 70%;
+  }
+
+  .slide-content {
+    width: auto;
+  }
+
+  img {
+    width: 100%;
+  }
+
+  h1 {
+    margin-top: 120px;
+  }
+
+  .prev, .prev:hover {
+    border-right-color: rgba(135, 135, 135, 0.5);
+  }
+
+  .next, .next:hover {
+    border-left-color: rgba(135, 135, 135, 0.5);
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 50%;
+    overflow: hidden;
+  }
+
+  .slide-content {
+    padding: 10px;
+    margin-top: 10px;
+    height: 340px;
+  }
+
+  h1 {
+    margin-top: 50px;
+  }
+
+  ul {
+    padding-left: 25px;
+  }
+}
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact;
+  }
+
+  @page {
+    size: letter;
+  }
+
+  .hidden {
+    display: inline;
+  }
+
+  html {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  body {
+    margin: 0 auto !important;
+    border: 0;
+    padding: 0;
+    float: none !important;
+    overflow: visible;
+    background: none !important;
+    font-size: 52%;
+  }
+
+  .progress, .controls {
+    display: none;
+  }
+
+  .slide {
+    position: static;
+  }
+
+  .slide-content {
+    border: 1px solid #222;
+    margin-top: 0;
+    margin-bottom: 40px;
+    height: 3.5in;
+    overflow: visible;
+  }
+
+  .slide:nth-child(even) {
+    /* 2 slides per page */
+    page-break-before: always;
+  }
+}
+
+/*
+github.com style (c) Vasily Polovnyov <vast@whiteants.net>
+*/
+
+code, pre {
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  overflow: auto;
+  padding: 6px 10px;
+}
+
+code {
+  padding: 0 5px;
+}
+
+pre>code {
+  margin: 0; padding: 0;
+  border: none;
+  background: transparent;
+}
+
+pre .comment,
+pre .template_comment,
+pre .diff .header,
+pre .javadoc {
+  color: #998;
+  font-style: italic
+}
+
+pre .keyword,
+pre .css .rule .keyword,
+pre .winutils,
+pre .javascript .title,
+pre .nginx .title,
+pre .subst,
+pre .request,
+pre .status {
+  color: #333;
+  font-weight: bold
+}
+
+pre .number,
+pre .hexcolor,
+pre .ruby .constant {
+  color: #099;
+}
+
+pre .string,
+pre .tag .value,
+pre .phpdoc,
+pre .tex .formula {
+  color: #d14
+}
+
+pre .title,
+pre .id {
+  color: #900;
+  font-weight: bold
+}
+
+pre .javascript .title,
+pre .lisp .title,
+pre .clojure .title,
+pre .subst {
+  font-weight: normal
+}
+
+pre .class .title,
+pre .haskell .type,
+pre .vhdl .literal,
+pre .tex .command {
+  color: #458;
+  font-weight: bold
+}
+
+pre .tag,
+pre .tag .title,
+pre .rules .property,
+pre .django .tag .keyword {
+  color: #000080;
+  font-weight: normal
+}
+
+pre .attribute,
+pre .variable,
+pre .lisp .body {
+  color: #008080
+}
+
+pre .regexp {
+  color: #009926
+}
+
+pre .class {
+  color: #458;
+  font-weight: bold
+}
+
+pre .symbol,
+pre .ruby .symbol .string,
+pre .lisp .keyword,
+pre .tex .special,
+pre .prompt {
+  color: #990073
+}
+
+pre .built_in,
+pre .lisp .title,
+pre .clojure .built_in {
+  color: #0086b3
+}
+
+pre .preprocessor,
+pre .pi,
+pre .doctype,
+pre .shebang,
+pre .cdata {
+  color: #999;
+  font-weight: bold
+}
+
+pre .deletion {
+  background: #fdd
+}
+
+pre .addition {
+  background: #dfd
+}
+
+pre .diff .change {
+  background: #0086b3
+}
+
+pre .chunk {
+  color: #aaa
+}
+
+
+  </style>
+</head>
+<body>
+    <div class="progress">
+    <div class="progress-bar"></div>
+  </div>
+
+  <div class="slide" id="slide-1">
+    <section class="slide-content"><p><a href="http://www.lighttable.com">www.lighttable.com</a></p>
+<p>(if you want to follow along)</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-2">
+    <section class="slide-content"><h1 id="functional-programming">Functional programming</h1>
+<h2 id="-in-clojure-">(in clojure)</h2>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-3">
+    <section class="slide-content"><h2 id="why-clojure">Why clojure</h2>
+<ul>
+<li>it runs on the JVM:<ul>
+<li>fast</li>
+<li>wealth of libraries</li>
+<li>runs pretty much everywhere</li>
+</ul>
+</li>
+<li>it&#39;s a lisp:<ul>
+<li>easy, consistent structure</li>
+<li>mad metaprogramming (won&#39;t get into this)</li>
+</ul>
+</li>
+<li>great community</li>
+<li>lighttable</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-4">
+    <section class="slide-content"><p><img src="img/zen.jpg" alt="Zen mind, beginner mind"></p>
+<p>Shoshin</p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-5">
+    <section class="slide-content"><h2 id="what-is-a-function-">What is a function?</h2>
+<p><img src="img/what_is_a_fn.jpg" alt="A black box"></p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-6">
+    <section class="slide-content"><h2 id="the-functional-programming-way">The functional programming way</h2>
+<p>Simple data structures that &quot;flow&quot; through a pipeline of very general functions.</p>
+<pre><code>{                                                        {
+  name: &quot;lemon_tree&quot;                                       name: &quot;lemon_tree&quot;
+  no-of-fruit: 0                                           no-of-fruit: 10
+  age: 3                 &gt;&gt;   water!  &gt;&gt;   age!   &gt;&gt;       age: 4
+  type: :tree                                              type: :tree
+}                                                        }</code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-7">
+    <section class="slide-content"><h2 id="applying-a-fn">Applying a fn</h2>
+<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">+</span></span><span class="number"> 1</span><span class="number"> 1</span>)</span>   <span class="comment">; =&gt; 2</span>
+
+<span class="list">(<span class="title"><span class="built_in">even?</span></span><span class="number"> 1</span>)</span> <span class="comment">; =&gt; false</span>
+<span class="list">(<span class="title"><span class="built_in">even?</span></span><span class="number"> 2</span>)</span> <span class="comment">; =&gt; true</span>
+
+<span class="list">(<span class="title"><span class="built_in">inc</span></span><span class="number"> 2</span>)</span>       <span class="comment">; =&gt; 3</span>
+<span class="list">(<span class="title"><span class="built_in">inc</span></span> <span class="list">(<span class="title"><span class="built_in">+</span></span><span class="number"> 1</span><span class="number"> 1</span>)</span>)</span> <span class="comment">; =&gt; 3</span></code></pre>
+<ul>
+<li>lots of parentheses (but don&#39;t let them scare you)</li>
+<li>prefix notation <code>(+ 1 1 1 1)</code></li>
+<li>weird at first, but very simple and consistent</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-8">
+    <section class="slide-content"><h1 id="demo">DEMO</h1>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-9">
+    <section class="slide-content"><h2 id="defining-a-fn">Defining a fn</h2>
+<p>An anonymous function:</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">fn</span></span> <span class="collection">[n]</span> <span class="list">(<span class="title"><span class="built_in">*</span></span> n n)</span>)</span></code></pre>
+<p>... And a named one:</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">defn</span></span> square <span class="collection">[n]</span> <span class="list">(<span class="title"><span class="built_in">*</span></span> n n)</span>)</span></code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-10">
+    <section class="slide-content"><h1 id="demo">DEMO</h1>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-11">
+    <section class="slide-content"><h2 id="values">Values</h2>
+<p>Values in fn programming are immutable:</p>
+<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">let</span></span> <span class="collection">[bunny<span class="number"> 3</span>
+      more-awesome-bunny <span class="list">(<span class="title">square</span> bunny)</span>]</span>
+      more-awesome-bunny)</span></code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-12">
+    <section class="slide-content"><h1 id="fizz-buzz">Fizz-Buzz</h1>
+<pre><code class="lang-clojure"><span class="list">(<span class="title">fizz-buzzify</span><span class="number"> 1</span>)</span>  <span class="comment">; =&gt; 1</span>
+<span class="list">(<span class="title">fizz-buzzify</span><span class="number"> 2</span>)</span>  <span class="comment">; =&gt; 2</span>
+<span class="list">(<span class="title">fizz-buzzify</span><span class="number"> 3</span>)</span>  <span class="comment">; =&gt; "Fizz"</span>
+<span class="list">(<span class="title">fizz-buzzify</span><span class="number"> 5</span>)</span>  <span class="comment">; =&gt; "Buzz"</span>
+<span class="list">(<span class="title">fizz-buzzify</span><span class="number"> 15</span>)</span> <span class="comment">; =&gt; "FizzBuzz"</span></code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-13">
+    <section class="slide-content"><h1 id="demo">DEMO</h1>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-14">
+    <section class="slide-content"><h1 id="common-functional-creatures">Common functional creatures</h1>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-15">
+    <section class="slide-content"><h2 id="remember-a-fn-is-just-this-">Remember, a fn is just this:</h2>
+<p><img src="img/what_is_a_fn.jpg" alt="A black box"></p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-16">
+    <section class="slide-content"><h2 id="map">Map</h2>
+<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">map</span></span> inc <span class="collection">[1<span class="number"> 2</span><span class="number"> 3</span>]</span>)</span>
+<span class="comment">;; =&gt; [2 3 4]</span>
+
+<span class="list">(<span class="title"><span class="built_in">map</span></span> square <span class="collection">[1<span class="number"> 2</span><span class="number"> 4</span>]</span>)</span>
+<span class="comment">;; =&gt; [1 4 16]</span>
+
+<span class="list">(<span class="title"><span class="built_in">map</span></span> <span class="list">(<span class="title"><span class="built_in">fn</span></span> <span class="collection">[n]</span> <span class="list">(<span class="title"><span class="built_in">*</span></span> n<span class="number"> 100</span>)</span>)</span> <span class="collection">[1<span class="number"> 2</span><span class="number"> 4</span>]</span>)</span>
+<span class="comment">;; =&gt; [100 200 400]</span></code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-17">
+    <section class="slide-content"><p><img src="img/map.jpg" alt="Map bos"></p>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-18">
+    <section class="slide-content"><h2 id="apply-utility-">Apply (utility)</h2>
+<pre><code class="lang-clojure"><span class="comment">;; (* [1 2 3 4])</span>
+<span class="comment">;; =&gt; doesn't work. Cannot apply * to an array()</span>
+
+<span class="list">(<span class="title"><span class="built_in">apply</span></span> + <span class="collection">[1<span class="number"> 2</span><span class="number"> 3</span><span class="number"> 4</span>]</span>)</span>
+<span class="comment">;; == (+ 1 2 3 4)</span>
+<span class="comment">;; =&gt; 10</span>
+
+<span class="list">(<span class="title"><span class="built_in">apply</span></span> * <span class="collection">[1<span class="number"> 2</span><span class="number"> 3</span><span class="number"> 4</span>]</span>)</span>
+<span class="comment">;; == (* 1 2 3 4)</span>
+<span class="comment">;; =&gt; 24</span></code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-19">
+    <section class="slide-content"><h2 id="filter">Filter</h2>
+<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">filter</span></span> even? <span class="collection">[1<span class="number"> 2</span><span class="number"> 3</span><span class="number"> 4</span><span class="number"> 5</span><span class="number"> 6</span>]</span>)</span>
+<span class="comment">;; =&gt; [2 4 6]</span></code></pre>
+<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">filter</span></span>
+  even?          <span class="comment">;; &lt;= a fn</span>
+  <span class="collection">[1<span class="number"> 2</span><span class="number"> 3</span><span class="number"> 4</span><span class="number"> 5</span><span class="number"> 6</span>]</span>)</span> <span class="comment">;; &lt;= a list</span>
+<span class="comment">;; =&gt; [2 4 6]</span>
+
+<span class="list">(<span class="title"><span class="built_in">filter</span></span>
+  <span class="list">(<span class="title"><span class="built_in">fn</span></span> <span class="collection">[n]</span> <span class="list">(<span class="title"><span class="built_in">=</span></span><span class="number"> 1</span> n)</span>)</span> <span class="comment">;; &lt;= a fn</span>
+  <span class="collection">[1<span class="number"> 2</span><span class="number"> 4</span>]</span>)</span>         <span class="comment">;; &lt;= a list</span>
+<span class="comment">;; =&gt; [1]</span></code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-20">
+    <section class="slide-content"><h1 id="currency-converter">Currency Converter</h1>
+<pre><code class="lang-clojure"><span class="list">(<span class="title">convert</span> <span class="collection">[10 <span class="attribute">:eur</span>]</span> <span class="attribute">:usd</span>)</span>
+<span class="comment">;; =&gt; [13.5 :usd]</span>
+
+<span class="list">(<span class="title">add-all</span> <span class="collection">[10 <span class="attribute">:eur</span>]</span> <span class="collection">[13.5 <span class="attribute">:usd</span>]</span>)</span>
+<span class="comment">;; =&gt; [20.0 :eur]</span></code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-21">
+    <section class="slide-content"><pre><code class="lang-java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Euro</span> <span class="keyword">implements</span> <span class="title">Currency</span> {</span>
+    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">double</span> value;
+    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">double</span> DOLLAR_EXCHANGE_RATE = <span class="number">1.35</span>;
+    <span class="keyword">public</span> Euro(<span class="keyword">double</span> value) {
+        <span class="keyword">this</span>.value = value;
+    }
+    <span class="keyword">public</span> <span class="keyword">boolean</span> equals(Object other) {
+        <span class="keyword">return</span> other <span class="keyword">instanceof</span> Currency &amp;&amp; value == otherCurrencyToEuro((Currency) other);
+    }
+    <span class="keyword">public</span> <span class="keyword">double</span> getValue() {
+        <span class="keyword">return</span> value;
+    }
+    <span class="keyword">public</span> <span class="keyword">double</span> getValueInDollars() {
+        <span class="keyword">return</span> value * DOLLAR_EXCHANGE_RATE;
+    }
+    <span class="keyword">public</span> Euro plus(Currency other) {
+        <span class="keyword">double</span> newValue = value + otherCurrencyToEuro(other);
+        <span class="keyword">return</span> <span class="keyword">new</span> Euro(newValue);
+    }
+    <span class="keyword">private</span> <span class="keyword">double</span> otherCurrencyToEuro(Currency other) {
+       <span class="keyword">return</span> (other.getValueInDollars()/DOLLAR_EXCHANGE_RATE);
+    }
+}
+<span class="comment">// oh.. there's 3 more of these</span>
+<span class="comment">// .. yuck.</span></code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-22">
+    <section class="slide-content"><h1 id="live-coding">LIVE CODING</h1>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-23">
+    <section class="slide-content"><h2 id="upgrading-your-clojure-fu">Upgrading your clojure-fu</h2>
+<ul>
+<li><a href="http://github.com/functional-koans/clojure-koans">clojure koans</a></li>
+<li><a href="http://www.4clojure.com">4clojure.com</a></li>
+<li><a href="http://aphyr.com/tags/Clojure-from-the-ground-up">Clojure from the ground up</a></li>
+<li><p><a href="http://www.braveclojure.com">Clojure for the brave and true</a></p>
+</li>
+<li><p>functional programming for the oo programmer [book]</p>
+</li>
+<li>programming clojure [book]</li>
+<li>the joy of clojure [book]</li>
+<li>web development with clojure [book]</li>
+</ul>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-24">
+    <section class="slide-content"><h2 id="reduce">Reduce</h2>
+<pre><code class="lang-clojure"><span class="list">(<span class="title"><span class="built_in">reduce</span></span> + <span class="collection">[1<span class="number"> 2</span><span class="number"> 3</span><span class="number"> 4</span>]</span>)</span>
+<span class="comment">;; =&gt; 10</span>
+
+<span class="comment">;; 1 + 2 = 3</span>
+<span class="comment">;; 3 + 3 = 6</span>
+<span class="comment">;; 6 + 4 = 10</span>
+<span class="comment">;; =&gt; 10</span>
+
+<span class="list">(<span class="title"><span class="built_in">reduce</span></span> * <span class="collection">[1<span class="number"> 2</span><span class="number"> 3</span><span class="number"> 4</span>]</span>)</span>
+<span class="comment">;; =&gt; 24</span></code></pre>
+</section>
+  </div>
+  <div class="slide hidden" id="slide-25">
+    <section class="slide-content"><div class="author">
+  <h1 class="name">Martino Visintin</h1>
+    <h3 class="email">
+      <a href="mailto:mvisinti@thoughtworks.com">mvisinti@thoughtworks.com</a>
+    </h3>
+</div>
+</section>
+  </div>
+
+  <div class="controls">
+    <div class="arrow prev"></div>
+    <div class="arrow next"></div>
+  </div>
+
+
+  <script type="text/javascript">
+    /**
+ * Returns the current page number of the presentation.
+ */
+function currentPosition() {
+  return parseInt(document.querySelector('.slide:not(.hidden)').id.slice(6));
+}
+
+
+/**
+ * Navigates forward n pages
+ * If n is negative, we will navigate in reverse
+ */
+function navigate(n) {
+  var position = currentPosition();
+  var numSlides = document.getElementsByClassName('slide').length;
+
+  /* Positions are 1-indexed, so we need to add and subtract 1 */
+  var nextPosition = (position - 1 + n) % numSlides + 1;
+
+  /* Normalize nextPosition in-case of a negative modulo result */
+  nextPosition = (nextPosition - 1 + numSlides) % numSlides + 1;
+
+  document.getElementById('slide-' + position).classList.add('hidden');
+  document.getElementById('slide-' + nextPosition).classList.remove('hidden');
+
+  updateProgress();
+  updateURL();
+  updateTabIndex();
+}
+
+
+/**
+ * Updates the current URL to include a hashtag of the current page number.
+ */
+function updateURL() {
+  window.history.replaceState({} , null, '#' + currentPosition());
+}
+
+
+/**
+ * Sets the progress indicator.
+ */
+function updateProgress() {
+  var progressBar = document.querySelector('.progress-bar');
+
+  if (progressBar !== null) {
+    var numSlides = document.getElementsByClassName('slide').length;
+    var position = currentPosition() - 1;
+    var percent = (numSlides === 1) ? 100 : 100 * position / (numSlides - 1);
+    progressBar.style.width = percent.toString() + '%';
+  }
+}
+
+
+/**
+ * Removes tabindex property from all links on the current slide, sets
+ * tabindex = -1 for all links on other slides. Prevents slides from appearing
+ * out of control.
+ */
+function updateTabIndex() {
+  var allLinks = document.querySelectorAll('.slide a');
+  var position = currentPosition();
+  var currentPageLinks = document.getElementById('slide-' + position).querySelectorAll('a');
+  var i;
+
+  for (i = 0; i < allLinks.length; i++) {
+    allLinks[i].setAttribute('tabindex', -1);
+  }
+
+  for (i = 0; i < currentPageLinks.length; i++) {
+    currentPageLinks[i].removeAttribute('tabindex');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  // Update the tabindex to prevent weird slide transitioning
+  updateTabIndex();
+
+  // If the location hash specifies a page number, go to it.
+  var page = window.location.hash.slice(1);
+  if (page) {
+    navigate(parseInt(page) - 1);
+  }
+
+  document.onkeydown = function (e) {
+    var kc = e.keyCode;
+
+    // left, down, H, J, backspace, PgUp - BACK
+    // up, right, K, L, space, enter, PgDn - FORWARD
+    if (kc === 37 || kc === 40 || kc === 8 || kc === 72 || kc === 74 || kc === 33) {
+      navigate(-1);
+    } else if (kc === 38 || kc === 39 || kc === 13 || kc === 32 || kc === 75 || kc === 76 || kc === 34) {
+      navigate(1);
+    }
+  };
+
+  if (document.querySelector('.next') && document.querySelector('.prev')) {
+    document.querySelector('.next').onclick = function (e) {
+      e.preventDefault();
+      navigate(1);
+    };
+
+    document.querySelector('.prev').onclick = function (e) {
+      e.preventDefault();
+      navigate(-1);
+    };
+  }
+});
+
+
+  </script>
+</body>
+</html>
